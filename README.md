@@ -24,6 +24,8 @@ NeoGrip communicates with PC via ESP32 using the [LucidVR Driver](https://github
 - **End switches** (for grab button functionality)
 - 3D-printed controller **shell** (design files available [here](https://github.com/AthemiS13/NeoGrip/tree/main/3D-Files "here"))
 
+[![Side](https://github.com/AthemiS13/NeoGrip/blob/main/Assets/side.png "Side")](https://github.com/AthemiS13/NeoGrip/blob/main/Assets/side.png "Side")
+
 ## Software Requirements
 - [LucidVR Driver](https://github.com/LucidVR/opengloves-driver "LucidVR Driver")
 - [ALVR](https://github.com/alvr-org/ALVR "ALVR")
@@ -58,3 +60,5 @@ Make sure you have Lucid VR driver enabled in Steam VRs advanced settings. Than 
 ## Future Plans
 - Add Bluetooth communication for wireless functionality.
 - Explore additional gesture support and feedback mechanisms.
+
+[![basic](https://github.com/AthemiS13/NeoGrip/blob/main/Assets/basic.png "basic")](https://github.com/AthemiS13/NeoGrip/blob/main/Assets/basic.png "basic")
