@@ -1,0 +1,42 @@
+{
+  "driver_opengloves": {
+    "enable": true,
+    "left_enabled": true,
+    "right_enabled": true,
+    "feedback_enabled": false
+  },
+  "communication_btserial": {
+    "enabled": false,
+    "left_name": "lucidgloves-left",
+    "right_name": "lucidgloves-right"
+  },
+  "communication_serial": {
+    "enabled": true,
+    "left_port": "\\\\.\\COM3",
+    "right_port": "\\\\.\\COM13"
+  },
+  "communication_namedpipe": {
+    "enabled": true
+  },
+  "encoding_alpha": {
+    "max_analog_value": 4095
+  },
+  "pose_settings": {
+    "right_x_offset_position": -0.02481234446167946,
+    "right_y_offset_position": -0.02009681984782219,
+    "right_z_offset_position": -0.0020770560950040817,
+    "right_x_offset_degrees": -15.150299072265625,
+    "right_y_offset_degrees": 9.156967163085938,
+    "right_z_offset_degrees": -22.18165397644043,
+    "left_x_offset_position": 0.02382538467645645,
+    "left_y_offset_position": -0.022726628929376602,
+    "left_z_offset_position": -0.005547050852328539,
+    "left_x_offset_degrees": -11.733510971069336,
+    "left_y_offset_degrees": -9.492655754089355,
+    "left_z_offset_degrees": -14.293306350708008,
+    "pose_time_offset": -0.009999999776482582,
+    "controller_override": false,
+    "controller_override_left": 3,
+    "controller_override_right": 4
+  }
+}
