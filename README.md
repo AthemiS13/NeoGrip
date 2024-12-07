@@ -42,13 +42,13 @@ If you have purchased a Quest 2 without controllers that is logged out and facto
 ## Software setup
 Can be a bit tricky, depends on your setup and you need to tweak settings a lot. Here is what works for me:
 
-#### LucidVR setup:
+### LucidVR setup:
 Finish setup according to [their repository](https://github.com/LucidVR/lucidgloves "their repository"). Make sure you close arduino ide after programming, since it makes the COM port busy and not usable for the driver. Copy [my settings](https://github.com/AthemiS13/NeoGrip/tree/main/Config/LucidVR-Driver "my settings") just change COM ports of your controllers according to ArduinoIDE.
 
-#### ALVR setup:
+### ALVR setup:
 [Install ALVR](https://github.com/alvr-org/ALVR/wiki/Installation-guide) and then tweak the settings according to [mine](https://github.com/AthemiS13/NeoGrip/tree/main/Config/ALVR "mine"). Make sure ALVR [registered](https://github.com/AthemiS13/NeoGrip/blob/main/Config/ALVR/ALVRSETUP5.png "registered") LucidVR driver. If it is not registered, you will not be able to connect NeoGrip controllers to Steam VR.
 
-#### Steam VR setup:
+### Steam VR setup:
 Make sure you have Lucid VR driver enabled in Steam VRs advanced settings. Than adjust buttons bindings, since the default ones for Valve index controllers do not work properly. When binding in the Steam VR enviroment, select options above the line. For example if you want to bind trigger, you click the plus icon next to trigger and than select trigger option above the line.
 
 ## Future Plans
