@@ -3,7 +3,7 @@ Affordable custom controllers for Quest 2 and other VR headsets **purchased with
 
 ## Features
 - **Custom Controller Design:** Includes joystick, trigger, grab button, and three additional buttons. You can customize everything.
-- **Affordable Solution: ** Ideal for users who bought Quest 2 headsets without controllers for cost savings.
+- **Affordable Solution:** Ideal for users who bought Quest 2 headsets without controllers for cost savings.
 - **Connectivity:** USB-C communication (Bluetooth support planned).
 - **Driver:** Uses the [LucidVR Driver](https://github.com/LucidVR/opengloves-driver "LucidVR Driver") for Valve Index emulation.
 - **Hardware:** Built with ESP32 microcontroller and designed for DIY assembly.
@@ -32,7 +32,7 @@ NeoGrip communicates with PC via ESP32 using the [LucidVR Driver](https://github
 1. 3D Print the Shell: Download the [3D Files](https://github.com/AthemiS13/NeoGrip/tree/main/3D-Files "here") and print them using your preferred 3D printer.
 2. Wire Components: (Connect components to ESP32 According to **NeoGrip** firmware setup)
 3. Download [Firmware](https://github.com/AthemiS13/NeoGrip/tree/main/VR-Firmware "Firmware") and open lucidgloves_firmware-left/right **.INO** file in **Arduino IDE**
-4. Program the ** ESP32** using Arduino IDE.
+4. Program the **ESP32** using Arduino IDE.
 5. Set up the [LucidVR](https://github.com/LucidVR/opengloves-driver "LucidVR") SteamVR driver. If you have issues refer to their **Discord**.
 6. Connect the controller via **USB-C** to ensure proper communication with SteamVR.
 7. Setup **button bindings** in Steam VR (Default bindings don not work)
