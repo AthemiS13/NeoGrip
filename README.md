@@ -39,6 +39,8 @@ NeoGrip communicates with PC via ESP32 using the [LucidVR Driver](https://github
 6. Connect the controller via **USB-C** to ensure proper communication with SteamVR.
 7. Setup **button bindings** in Steam VR (Default bindings don not work)
 
+[![Assembly](https://github.com/AthemiS13/NeoGrip/blob/main/Assets/electro.png "Assembly")](https://github.com/AthemiS13/NeoGrip/blob/main/Assets/electro.png "Assembly")
+
 ### Notes on Quest 2 Setup:
 If you have purchased a Quest 2 without controllers that is logged out and factory resetted, bypassing the **initial setup** can be challenging. While this README focuses on the VRController project, instructions for bypassing the setup to enable hand tracking and unlock the headset can be provided on request.
 ## Software setup
