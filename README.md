@@ -1,5 +1,6 @@
 # NeoGrip
 Affordable custom controllers for Quest 2 and other VR headsets **purchased without original controllers**, or for those looking for open-source VR controllers. Designed using **ESP32** and [LucidVR Driver](https://github.com/LucidVR/opengloves-driver "LucidVR Driver") to emulate Valve Index controllers in **SteamVR**, this project makes headsets without controllers usable and accessible for VR enthusiasts on a budget.
+
 [![NeoGrip animation](https://github.com/AthemiS13/NeoGrip/blob/main/Assets/animation.gif "NeoGrip animation")](https://github.com/AthemiS13/NeoGrip/blob/main/Assets/animation.gif "NeoGrip animation")
 
 ## Features
