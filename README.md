@@ -3,7 +3,7 @@ Affordable custom controllers for Quest 2 and other VR headsets **purchased with
 
 [![NeoGrip animation](https://github.com/AthemiS13/NeoGrip/blob/main/Assets/animation.gif "NeoGrip animation")](https://github.com/AthemiS13/NeoGrip/blob/main/Assets/animation.gif "NeoGrip animation")
 ## Demo video
-[NeoGrip Demo](https://youtu.be/AhS3Zu6njnE?si=ZhlfLm47srKBmi9j "NeoGrip Demo")
+[![Watch the video](https://img.youtube.com/vi/AhS3Zu6njnE?si=yEACRPgUvw43rx8U/0.jpg)](https://youtu.be/AhS3Zu6njnE?si=yEACRPgUvw43rx8U)
 ## Features
 - **Custom Controller Design:** Includes joystick, trigger, grab button, and three additional buttons. You can customize everything.
 - **Affordable Solution:** Ideal for users who bought Quest 2 headsets without controllers for cost savings.
