@@ -16,11 +16,11 @@ unsigned long previousMillis = 0;  // Will store the last time a packet was sent
 const int buttonA = 18;
 const int buttonB = 5;
 const int buttonSYS = 19;
-const int buttonJOYCLK = 34;  // Assuming the joystick click button is on GPIO 34
+const int buttonJOYCLK = 35;  // Assuming the joystick click button is on GPIO 34
 const int buttonTRIG = 16;
 const int buttonSQZ = 4;
-const int joyXPin = 32;  // X-axis of the joystick
-const int joyYPin = 35;  // Y-axis of the joystick
+const int joyXPin = 33;  // X-axis of the joystick
+const int joyYPin = 32;  // Y-axis of the joystick
 
 void setup() {
   // Start Serial for debugging
@@ -41,7 +41,7 @@ void setup() {
   pinMode(buttonA, INPUT_PULLUP);
   pinMode(buttonB, INPUT_PULLUP);
   pinMode(buttonSYS, INPUT_PULLUP);
-  pinMode(buttonJOYCLK, INPUT_PULLUP);  // Change to INPUT (no pull-up resistor) for joystick click
+  pinMode(buttonJOYCLK, INPUT);  // Change to INPUT (no pull-up resistor) for joystick click
   pinMode(buttonTRIG, INPUT_PULLUP);
   pinMode(buttonSQZ, INPUT_PULLUP);
   pinMode(joyXPin, INPUT);
@@ -57,7 +57,7 @@ void loop() {
   int buttonAState = digitalRead(buttonA) == LOW ? 1 : 0;
   int buttonBState = digitalRead(buttonB) == LOW ? 1 : 0;
   int buttonSYSState = digitalRead(buttonSYS) == LOW ? 1 : 0;
-  int buttonJOYCLKState = digitalRead(buttonJOYCLK) == LOW ? 1 : 0;  // Joystick click should now be detected correctly
+  int buttonJOYCLKState = 0;
   int buttonTRIGState = digitalRead(buttonTRIG) == LOW ? 1 : 0;
   int buttonSQZState = digitalRead(buttonSQZ) == LOW ? 1 : 0;
 

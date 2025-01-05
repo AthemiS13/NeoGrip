@@ -10,8 +10,8 @@ udp_socket.bind(('0.0.0.0', 8888))  # Listen on all network interfaces
 
 print("Proxy server listening on port 8888...")
 
-# Function to send button states to ALVR server
-def send_to_alvr(trigger_value, grab_value, button_a, button_b, button_sys):
+# Function to send button states and joystick values to ALVR server
+def send_to_alvr(trigger_value, grab_value, button_a, button_b, button_sys, joyx_value, joyy_value, joyclk_value):
     data = [
         {
             "path": "/user/hand/right/input/trigger/value",
@@ -32,12 +32,24 @@ def send_to_alvr(trigger_value, grab_value, button_a, button_b, button_sys):
         {
             "path": "/user/hand/right/input/system/click",
             "value": {"Binary": button_sys}
+        },
+        {
+            "path": "/user/hand/right/input/thumbstick/x",
+            "value": {"Scalar": joyx_value}
+        },
+        {
+            "path": "/user/hand/right/input/thumbstick/y",
+            "value": {"Scalar": joyy_value}
+        },
+        {
+            "path": "/user/hand/right/input/thumbstick/click",
+            "value": {"Binary": joyclk_value}
         }
     ]
     try:
         response = requests.post(alvr_url, json=data)
         if response.status_code == 200:
-            print(f"Data sent to ALVR: Trigger={trigger_value}, Grab={grab_value}, A={button_a}, B={button_b}, SYS={button_sys}")
+            print(f"Data sent to ALVR: Trigger={trigger_value}, Grab={grab_value}, A={button_a}, B={button_b}, SYS={button_sys}, JOYX={joyx_value}, JOYY={joyy_value}, JOYCLK={joyclk_value}")
         else:
             print(f"Failed to send data. Status code: {response.status_code}, Response: {response.text}")
     except requests.exceptions.RequestException as e:
@@ -62,9 +74,13 @@ def decode_packet(packet):
     button_a = True if button_A == 1 else False
     button_b = True if button_B == 1 else False
     button_sys = True if button_SYS == 1 else False
+    # Joystick values are already in the range 0-4095, so we need to scale them to -1 to 1
+    joyx_value = (joyX - 2047) / 2047.0  # Normalize to the range -1.0 to 1.0
+    joyy_value = (joyY - 2047) / 2047.0  # Normalize to the range -1.0 to 1.0
+    joyclk_value = True if button_JOYCLK == 1 else False  # Joystick click (True or False)
 
     # Send the values to ALVR
-    send_to_alvr(trigger_value, grab_value, button_a, button_b, button_sys)
+    send_to_alvr(trigger_value, grab_value, button_a, button_b, button_sys, joyx_value, joyy_value, joyclk_value)
 
 # Main loop to process incoming UDP packets
 while True:
