@@ -1,0 +1,40 @@
+    data = [
+        {
+            "path": "/user/hand/right/input/thumbstick/click",
+            "value": {"Binary": thumbstick_value}  # Thumbstick click
+        },
+        {
+            "path": "/user/hand/right/input/b/click",
+            "value": {"Binary": b_value}  # B button click
+        }
+    ]
+
+
+    thumbstick_value=boolean
+    b_value=boolean
+
+
+        data = [
+        {
+            "path": "/user/hand/right/input/trigger/value",
+            "value": {"Scalar": trigger_value}  # Trigger (spacebar)
+        },
+        {
+            "path": "/user/hand/right/input/squeeze/value",
+            "value": {"Scalar": grab_value}  # Grab (Enter)
+        }
+    ]
+trigger_value=float
+grab_value=float
+    data = [
+        {
+            "path": "/user/hand/right/input/thumbstick/x",
+            "value": {"Scalar": trigger_value}  # Trigger (spacebar)
+        },
+        {
+            "path": "/user/hand/right/input/thumbstick/y",
+            "value": {"Scalar": grab_value}  # Grab (Ente r)
+        }
+    ]
+
+values -1 to 1
