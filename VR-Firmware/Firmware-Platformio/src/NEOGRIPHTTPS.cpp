@@ -12,6 +12,16 @@ const unsigned long interval = 40;  // 40ms interval for sending data
 
 unsigned long previousMillis = 0;  // Will store the last time a packet was sent
 
+// GPIO Pins for buttons
+const int buttonA = 18;
+const int buttonB = 5;
+const int buttonSYS = 19;
+const int buttonJOYCLK = 34;  // Assuming the joystick click button is on GPIO 34
+const int buttonTRIG = 16;
+const int buttonSQZ = 4;
+const int joyXPin = 32;  // X-axis of the joystick
+const int joyYPin = 35;  // Y-axis of the joystick
+
 void setup() {
   // Start Serial for debugging
   Serial.begin(115200);
@@ -28,8 +38,14 @@ void setup() {
   udp.begin(8888);
 
   // Configure GPIO pins for buttons
-  pinMode(16, INPUT_PULLUP);  // Use internal pull-up resistor
-  pinMode(17, INPUT_PULLUP);  // Use internal pull-up resistor
+  pinMode(buttonA, INPUT_PULLUP);
+  pinMode(buttonB, INPUT_PULLUP);
+  pinMode(buttonSYS, INPUT_PULLUP);
+  pinMode(buttonJOYCLK, INPUT_PULLUP);  // Change to INPUT (no pull-up resistor) for joystick click
+  pinMode(buttonTRIG, INPUT_PULLUP);
+  pinMode(buttonSQZ, INPUT_PULLUP);
+  pinMode(joyXPin, INPUT);
+  pinMode(joyYPin, INPUT);
 
   Serial.println("Setup complete!");
 }
@@ -37,21 +53,31 @@ void setup() {
 void loop() {
   unsigned long currentMillis = millis();
 
-  // Read button states
-  int button16_raw = digitalRead(16);  // Raw state of button 16
-  int button17_raw = digitalRead(17);  // Raw state of button 17
+  // Read button states (buttons use pull-up, so LOW means pressed)
+  int buttonAState = digitalRead(buttonA) == LOW ? 1 : 0;
+  int buttonBState = digitalRead(buttonB) == LOW ? 1 : 0;
+  int buttonSYSState = digitalRead(buttonSYS) == LOW ? 1 : 0;
+  int buttonJOYCLKState = digitalRead(buttonJOYCLK) == LOW ? 1 : 0;  // Joystick click should now be detected correctly
+  int buttonTRIGState = digitalRead(buttonTRIG) == LOW ? 1 : 0;
+  int buttonSQZState = digitalRead(buttonSQZ) == LOW ? 1 : 0;
 
-  // Reverse logic: HIGH (not pressed) -> 0, LOW (pressed) -> 1
-  int trigger_value = button16_raw == LOW ? 1 : 0;
-  int squeeze_value = button17_raw == LOW ? 1 : 0;
+  // Read joystick values (range: 0 to 1023)
+  int joyXValue = analogRead(joyXPin);
+  int joyYValue = analogRead(joyYPin);
 
-  // Format the packet as "00", "01", "10", or "11"
-  String packet = String(trigger_value) + String(squeeze_value);
+  // Format joystick values as 4-digit strings (range 0000 to 4095)
+  String formattedJoyX = String(joyXValue);
+  String formattedJoyY = String(joyYValue);
+  formattedJoyX = formattedJoyX.length() < 4 ? String("0000" + formattedJoyX).substring(formattedJoyX.length()) : formattedJoyX;
+  formattedJoyY = formattedJoyY.length() < 4 ? String("0000" + formattedJoyY).substring(formattedJoyY.length()) : formattedJoyY;
 
+  // Format the packet with all button and joystick states
+  String packet = String(buttonAState) + String(buttonBState) + String(buttonSYSState) +
+                  String(buttonTRIGState) + String(buttonSQZState) + 
+                  formattedJoyX + formattedJoyY + String(buttonJOYCLKState);  // Send formatted joystick values
 
   // Check if it's time to send a new packet
   if (currentMillis - previousMillis >= interval) {
-    // Save the last time we sent a packet
     previousMillis = currentMillis;
 
     // Send packet to the proxy server
@@ -61,6 +87,5 @@ void loop() {
 
     // Debug: Print confirmation of sending
     Serial.println("Sent: " + packet);
-
   }
 }

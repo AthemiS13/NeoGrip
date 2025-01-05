@@ -1,0 +1,176 @@
+NeoGrip Rules 
+
+This is a right controller
+
+A = Type: Binary, Values: True, False, Path: /user/hand/right/input/a/click, GPIO: 18
+B = Type: Binary, Values: True, False, Path: /user/hand/right/input/b/click, GPIO: 5
+SYS = Type: Binary, Values: True, False, Path /user/hand/right/input/system/click:, GPIO: 19
+JOYX = Type: Scalar, Values: -1.0, 1.0, Path: /user/hand/right/input/thumbstick/x, GPIO: 32
+JOYY = Type: Scalar, Values: -1.0, 1.0, Path: /user/hand/right/input/thumbstick/y, GPIO: 35
+JOYCLK = Type: Binary, Values: True, False, Path: /user/hand/right/input/thumbstick/click, GPIO: 34
+TRIG = Type: Scalar, Values: 0.0, 1.0, Path /user/hand/right/input/trigger/value:, GPIO: 16
+SQZ = Type: Scalar, Values: 0.0, 1.0, Path: /user/hand/right/input/squeeze/value, GPIO: 4
+
+Notes: 
+
+TRIG AND SQZ: Server expects value, but in my case buttons output only HIGH or LOW. Logic needs to convert it
+All the binary buttons must have internal pullup enabled in code
+Buttons are connected between GPIO pin and GND
+NeoGrip uses ESP32
+KY-023 uses this type of joystick
+
+Example: 
+            "path": "/user/hand/right/input/trigger/value",
+            "value": {"Scalar": trigger_value} //trigger_value = 0.0 or 1.0
+
+            "path": "/user/hand/right/input/thumbstick/x",
+            "value": {"Scalar": joyx_value}  // joyx_value = -1.0 to 1.0
+
+            "path": "/user/hand/right/input/thumbstick/click",
+            "value": {"Binary": thumbstick_clk} // thumbstick_clk = True or False
+
+
+Data sent from ESP32 CPP code: 
+
+Data array sent as quickly as possible periodically in this format: 
+
+ABSYSTRIGSQZJOYXJOYYJOYCLK
+
+Note: The letters above are just representations of definitions above. In real conditions they must be replaced by actual values in the code. Joystick values should be 3 digit number with no decimal dot for each axis.
+
+Example ESP32 code: 
+
+#include <Arduino.h>
+#include <WiFi.h>
+#include <WiFiUdp.h>
+
+const char* ssid = "";
+const char* password = "";
+
+WiFiUDP udp;
+const char* proxy_ip = "192.168.0.28";  // IP of your Python proxy server
+const int proxy_port = 8888;
+const unsigned long interval = 40;  // 40ms interval for sending data
+
+unsigned long previousMillis = 0;  // Will store the last time a packet was sent
+
+void setup() {
+  // Start Serial for debugging
+  Serial.begin(115200);
+
+  // Set up Wi-Fi connection
+  WiFi.begin(ssid, password);
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(1000);
+    Serial.println("Connecting to WiFi...");
+  }
+  Serial.println("Connected to WiFi!");
+
+  // Begin UDP communication
+  udp.begin(8888);
+
+  // Configure GPIO pins for buttons
+  pinMode(16, INPUT_PULLUP);  // Use internal pull-up resistor
+  pinMode(17, INPUT_PULLUP);  // Use internal pull-up resistor
+
+  Serial.println("Setup complete!");
+}
+
+void loop() {
+  unsigned long currentMillis = millis();
+
+  // Read button states
+  int button16_raw = digitalRead(16);  // Raw state of button 16
+  int button17_raw = digitalRead(17);  // Raw state of button 17
+
+  // Reverse logic: HIGH (not pressed) -> 0, LOW (pressed) -> 1
+  int trigger_value = button16_raw == LOW ? 1 : 0;
+  int squeeze_value = button17_raw == LOW ? 1 : 0;
+
+  // Format the packet as "00", "01", "10", or "11"
+  String packet = String(trigger_value) + String(squeeze_value);
+
+
+  // Check if it's time to send a new packet
+  if (currentMillis - previousMillis >= interval) {
+    // Save the last time we sent a packet
+    previousMillis = currentMillis;
+
+    // Send packet to the proxy server
+    udp.beginPacket(proxy_ip, proxy_port);
+    udp.print(packet);  // Send the data as a string
+    udp.endPacket();
+
+    // Debug: Print confirmation of sending
+    Serial.println("Sent: " + packet);
+
+  }
+}
+
+
+Proxy side: 
+
+In python
+Example proxy: 
+
+import socket
+import time
+import requests
+
+# Define the server and port for ALVR
+alvr_url = "http://192.168.0.28:8082/api/set-buttons"  # ALVR Server Address
+buffer_size = 1024  # Buffer size for receiving UDP packets
+udp_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+udp_socket.bind(('0.0.0.0', 8888))  # Listen on all network interfaces
+
+print("Proxy server listening on port 8888...")
+
+# Function to send button states to ALVR server
+def send_to_alvr(trigger_value, grab_value):
+    data = [
+        {
+            "path": "/user/hand/right/input/trigger/value",
+            "value": {"Scalar": trigger_value}
+        },
+        {
+            "path": "/user/hand/right/input/squeeze/value",
+            "value": {"Scalar": grab_value}
+        }
+    ]
+    try:
+        response = requests.post(alvr_url, json=data)
+        if response.status_code == 200:
+            print(f"Data sent to ALVR: Trigger={trigger_value}, Grab={grab_value}")
+        else:
+            print(f"Failed to send data. Status code: {response.status_code}, Response: {response.text}")
+    except requests.exceptions.RequestException as e:
+        print(f"An error occurred: {e}")
+
+# Main loop to process incoming UDP packets
+while True:
+    data, addr = udp_socket.recvfrom(buffer_size)
+    print(f"Received data: {data.decode()} from {addr}")
+
+    # Parse the packet (e.g., "01", "00", "10", "11")
+    if data.decode() == "00":
+        send_to_alvr(0.0, 0.0)  # Trigger off, Grab off
+    elif data.decode() == "01":
+        send_to_alvr(0.8, 0.0)  # Trigger on, Grab off
+    elif data.decode() == "10":
+        send_to_alvr(0.0, 1.0)  # Trigger off, Grab on
+    elif data.decode() == "11":
+        send_to_alvr(0.8, 1.0)  # Trigger on, Grab on
+    else:
+        print(f"Unknown packet received: {data.decode()}")
+
+It needs to decode the array sent by the ESP32 and forward it to ALVR in correct format. 
+
+
+
+Netwotk setup:
+
+ALVR(PC)IP: http://192.168.0.28:8082/api/set-buttons //that's where the proxy sends data 
+Proxy listens on 8888 port which was unblocked in settings to allow traffic
+ESP32 uses UDP protocol 
+PC IP that runs ALVR server and the proxy: 192.168.0.28
+
