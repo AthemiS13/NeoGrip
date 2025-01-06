@@ -12,7 +12,22 @@ const unsigned long interval = 40;  // 40ms interval for sending data
 
 unsigned long previousMillis = 0;  // Will store the last time a packet was sent
 
-// GPIO Pins for buttons
+
+const char controllerType = 'R'; 
+
+// GPIO Pins for buttons LEFT
+//const int buttonA = 13;
+//const int buttonB = 12;
+//const int buttonSYS = 14;
+//const int buttonJOYCLK = 35;  // Assuming the joystick click button is on GPIO 34
+//const int buttonTRIG = 16;
+//const int buttonSQZ = 4;
+//const int joyXPin = 33;  // X-axis of the joystick
+//const int joyYPin = 32;  // Y-axis of the joystick
+
+
+
+// GPIO Pins for buttons RIGHT
 const int buttonA = 18;
 const int buttonB = 5;
 const int buttonSYS = 19;
@@ -21,6 +36,7 @@ const int buttonTRIG = 16;
 const int buttonSQZ = 4;
 const int joyXPin = 33;  // X-axis of the joystick
 const int joyYPin = 32;  // Y-axis of the joystick
+
 
 void setup() {
   // Start Serial for debugging
@@ -57,7 +73,7 @@ void loop() {
   int buttonAState = digitalRead(buttonA) == LOW ? 1 : 0;
   int buttonBState = digitalRead(buttonB) == LOW ? 1 : 0;
   int buttonSYSState = digitalRead(buttonSYS) == LOW ? 1 : 0;
-  int buttonJOYCLKState = 0;
+  int buttonJOYCLKState = 0;  // Assume joystick click button is not pressed
   int buttonTRIGState = digitalRead(buttonTRIG) == LOW ? 1 : 0;
   int buttonSQZState = digitalRead(buttonSQZ) == LOW ? 1 : 0;
 
@@ -72,7 +88,7 @@ void loop() {
   formattedJoyY = formattedJoyY.length() < 4 ? String("0000" + formattedJoyY).substring(formattedJoyY.length()) : formattedJoyY;
 
   // Format the packet with all button and joystick states
-  String packet = String(buttonAState) + String(buttonBState) + String(buttonSYSState) +
+  String packet = String(controllerType) +  String(buttonAState) + String(buttonBState) + String(buttonSYSState) +
                   String(buttonTRIGState) + String(buttonSQZState) + 
                   formattedJoyX + formattedJoyY + String(buttonJOYCLKState);  // Send formatted joystick values
 
