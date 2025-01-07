@@ -78,4 +78,4 @@ while True:
         else:
             print(f"Invalid controller identifier: {controller_id}")
     else:
-        print(f"Invalid packet length: {len(packet)}")
+        print(f"Invalid packet length: {len(packet)}")        

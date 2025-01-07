@@ -8,34 +8,34 @@ const char* password = "";
 WiFiUDP udp;
 const char* proxy_ip = "192.168.0.28";  // IP of your Python proxy server
 const int proxy_port = 8888;
-const unsigned long interval = 40;  // 40ms interval for sending data
+const unsigned long interval = 5;  // 40ms interval for sending data
 
 unsigned long previousMillis = 0;  // Will store the last time a packet was sent
 
 
-const char controllerType = 'R'; 
+const char controllerType = 'L';  // 'L' for left controller, 'R' for right controller
 
 // GPIO Pins for buttons LEFT
-//const int buttonA = 13;
-//const int buttonB = 12;
-//const int buttonSYS = 14;
-//const int buttonJOYCLK = 35;  // Assuming the joystick click button is on GPIO 34
-//const int buttonTRIG = 16;
-//const int buttonSQZ = 4;
-//const int joyXPin = 33;  // X-axis of the joystick
-//const int joyYPin = 32;  // Y-axis of the joystick
-
-
-
-// GPIO Pins for buttons RIGHT
-const int buttonA = 18;
-const int buttonB = 5;
-const int buttonSYS = 19;
+const int buttonA = 13;
+const int buttonB = 12;
+const int buttonSYS = 14;
 const int buttonJOYCLK = 35;  // Assuming the joystick click button is on GPIO 34
 const int buttonTRIG = 16;
 const int buttonSQZ = 4;
 const int joyXPin = 33;  // X-axis of the joystick
 const int joyYPin = 32;  // Y-axis of the joystick
+
+
+
+// GPIO Pins for buttons RIGHT
+//const int buttonA = 18;
+//const int buttonB = 5;
+//const int buttonSYS = 19;
+///const int buttonJOYCLK = 35;  // Assuming the joystick click button is on GPIO 34
+//const int buttonTRIG = 16;
+//const int buttonSQZ = 4;
+//const int joyXPin = 33;  // X-axis of the joystick
+//const int joyYPin = 32;  // Y-axis of the joystick
 
 
 void setup() {
