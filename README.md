@@ -8,7 +8,9 @@ Affordable custom controllers for Quest 2 and other VR headsets **purchased with
 
 - **Major design update:** V1 was almost impossible to use comfortably because of its size and non-ergonomic design. V2 brings a completely new design that has already been 3D printed and tested and works flawlessly.
 - **Software update:** NeoGrip is slowly getting rid of [LucidVR Driver](https://github.com/LucidVR/opengloves-driver "LucidVR Driver") because more flexible, lightweight and simple solution is needed. I am currently collaborating with [ALVR's](https://github.com/alvr-org/ALVR "ALVR") Developers to build NeoGrip's firmware based on ALVR's API.
-- **This will bring:** Wireless Wi-Fi-based communication, Haptic feedback, and possibly Hall effect sensors (currently using binary state of presses)
+- **This will bring:** Wireless Wi-Fi-based communication, Haptic feedback, and possibly Hall effect sensors (currently using binary state of presses)12
+- 
+- 5.12. 2025: NeoGrip no longer uses LucidVR Driver. I worked hard with ALVR devs and finally brought NeoGrip to life as I wanted. It uses a proxy written in python to handle ESP to PC communication. I will add more info once it is completely done.
   
 ## Features
 - **Custom Controller Design:** Includes joystick, trigger, grab button, and three additional buttons. You can customize everything.
