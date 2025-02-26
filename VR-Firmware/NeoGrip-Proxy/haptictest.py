@@ -38,7 +38,8 @@ def on_message(ws, message):
             # Send data to ESP32
             send_to_esp32(formatted_data)
         else:
-            print("Error: Missing required fields (duration, amplitude)")
+            print("Motor Stopped")
+            send_to_esp32("255,0")  # Stop vibration
 
     except json.JSONDecodeError:
         print("Failed to decode JSON message")
