@@ -79,12 +79,10 @@ def update_alvr():
                 last_sent_data[controller] = data
         time.sleep(SEND_INTERVAL)
 
-# Function to send haptic feedback to ESP32
-def send_to_esp32(controller, duty_cycle, duration_ms):
-    if duty_cycle == 0 and duration_ms == 0:
-        return  # Avoid redundant stop signals
+# Function to send haptic feedback to ESP32 in the format "000000"
+def send_to_esp32(controller, duty_cycle, delay_ns):
     try:
-        formatted_data = f"{duty_cycle},{int(duration_ms)}"
+        formatted_data = f"{duty_cycle:03}{delay_ns:06}"
         sock.sendto(formatted_data.encode(), (ESP32_IP, ESP32_PORTS[controller]))
         print(f"[HAPTIC] Sent to {controller} ESP32: {formatted_data}")
     except Exception as e:
@@ -107,15 +105,18 @@ def on_message(ws, message):
             return
 
         if duration and amplitude is not None:
-            duration_ms = (duration.get("secs", 0) * 1000) + (duration.get("nanos", 0) / 1e6)
+            duration_ns = (duration.get("secs", 0) * 1_000_000_000) + duration.get("nanos", 0)
             duty_cycle = int(amplitude * 255)
-            send_to_esp32(controller, duty_cycle, duration_ms)
+            send_to_esp32(controller, duty_cycle, duration_ns)
+        else:
+            send_to_esp32(controller, 255, 0)  # Keep motor off when no event
     except Exception as e:
         print(f"[ERROR] Processing WebSocket message: {e}")
 
 def start_websocket():
     ws = websocket.WebSocketApp("ws://localhost:8082/api/events", on_message=on_message)
     ws.run_forever()
+
 # Listener function for a specific controller
 def listen_for_controller(controller, port):
     udp_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -143,8 +144,13 @@ def main():
         threading.Thread(target=start_websocket, daemon=True).start()
         for controller, port in CONTROLLER_PORTS.items():
             threading.Thread(target=listen_for_controller, args=(controller, port), daemon=True).start()
+        
         print("[SYSTEM] Proxy server running. Press Ctrl+C to stop.")
+
         while True:
+            # Send "255000" periodically to keep motors off when no event is happening
+            send_to_esp32("left", 255, 0)
+            send_to_esp32("right", 255, 0)
             time.sleep(1)
     except KeyboardInterrupt:
         print("[SYSTEM] Stopping proxy server...")
