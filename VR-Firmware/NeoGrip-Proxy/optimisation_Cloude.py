@@ -110,16 +110,17 @@ def update_haptic_from_event(amplitude, duration_ms):
 def haptic_sender():
     while True:
         with haptic_lock:
+            current_haptic = "255000"
             command = current_haptic
             # Po odeslání resetujeme na výchozí hodnotu (vypnuto)
-            current_haptic = "255000"
+
         try:
             # Zde můžete rozlišovat ovladače – příklad posíláme levému ovladači
             sock.sendto(command.encode(), (ESP32_IP, ESP32_PORTS["left"]))
             print(f"[HAPTIC] Odesláno: {command}")
         except Exception as e:
             print(f"[HAPTIC ERROR] {e}")
-        time.sleep(0.02)  # Odesílat každých 20 ms
+        time.sleep(100000)  # Odesílat každých 20 ms
 
 # Zpracování zpráv z WebSocketu (ALVR eventy)
 def on_message(ws, message):

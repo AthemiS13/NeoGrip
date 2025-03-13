@@ -19,7 +19,7 @@ state_queue = Queue()
 last_sent_data = {"left": None, "right": None}
 
 # ESP32 Haptic Configuration
-ESP32_IP = "192.168.0.16"  # Change to your ESP32 IP
+ESP32_IP = "192.168.0.27"  # Change to your ESP32 IP
 ESP32_PORTS = {"left": 8884, "right": 8888}  # Different ports for each controller
 
 # UDP socket for sending haptic feedback
@@ -72,6 +72,7 @@ def process_packet(controller, packet):
 # Function to handle sending updates to ALVR
 def update_alvr():
     while True:
+
         if not state_queue.empty():
             controller, data = state_queue.get()
             if data != last_sent_data[controller]:
@@ -79,10 +80,13 @@ def update_alvr():
                 last_sent_data[controller] = data
         time.sleep(SEND_INTERVAL)
 
-# Function to send haptic feedback to ESP32 in the format "000000"
-def send_to_esp32(controller, duty_cycle, delay_ns):
+# Function to send haptic feedback to ESP32
+def send_to_esp32(controller, duty_cycle, duration_ms):
+
+    if duty_cycle == 0 and duration_ms == 0:
+        return  # Avoid redundant stop signals
     try:
-        formatted_data = f"{duty_cycle:03}{delay_ns:06}"
+        formatted_data = f"{duty_cycle},{int(duration_ms)}"
         sock.sendto(formatted_data.encode(), (ESP32_IP, ESP32_PORTS[controller]))
         print(f"[HAPTIC] Sent to {controller} ESP32: {formatted_data}")
     except Exception as e:
@@ -105,18 +109,15 @@ def on_message(ws, message):
             return
 
         if duration and amplitude is not None:
-            duration_ns = (duration.get("secs", 0) * 1_000_000_000) + duration.get("nanos", 0)
+            duration_ms = (duration.get("secs", 0) * 1000) + (duration.get("nanos", 0) / 1e6)
             duty_cycle = int(amplitude * 255)
-            send_to_esp32(controller, duty_cycle, duration_ns)
-        else:
-            send_to_esp32(controller, 255, 0)  # Keep motor off when no event
+            send_to_esp32(controller, duty_cycle, duration_ms)
     except Exception as e:
         print(f"[ERROR] Processing WebSocket message: {e}")
 
 def start_websocket():
     ws = websocket.WebSocketApp("ws://localhost:8082/api/events", on_message=on_message)
     ws.run_forever()
-
 # Listener function for a specific controller
 def listen_for_controller(controller, port):
     udp_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -144,13 +145,8 @@ def main():
         threading.Thread(target=start_websocket, daemon=True).start()
         for controller, port in CONTROLLER_PORTS.items():
             threading.Thread(target=listen_for_controller, args=(controller, port), daemon=True).start()
-        
         print("[SYSTEM] Proxy server running. Press Ctrl+C to stop.")
-
         while True:
-            # Send "255000" periodically to keep motors off when no event is happening
-            send_to_esp32("left", 255, 0)
-            send_to_esp32("right", 255, 0)
             time.sleep(1)
     except KeyboardInterrupt:
         print("[SYSTEM] Stopping proxy server...")
