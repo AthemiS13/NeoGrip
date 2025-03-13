@@ -4,11 +4,11 @@ import requests
 import threading
 import queue
 import websocket
-
+import time
 # ESP32 to PC communication
 esp_to_pc_port = 9999  # Port where ESP32 sends packets
 pc_to_esp_port = 8888  # Port to send haptic feedback to ESP32
-alvr_url = "http://192.168.0.30:8082/api/set-buttons"
+alvr_url = "http://192.168.0.29:8082/api/set-buttons"
 broadcast_ip = '255.255.255.255'
 
 # Create UDP sockets
@@ -50,6 +50,7 @@ def process_packet(packet):
             {"path": "/user/hand/right/input/thumbstick/y", "value": {"Scalar": (joyY - 2047) / 2047.0}},
             {"path": "/user/hand/right/input/thumbstick/click", "value": {"Binary": button_JOYCLK == 1}},
         ]
+
         
         state_queue.put(data)
     except ValueError as e:
@@ -115,8 +116,11 @@ ws_thread.start()
 # Continuously listen for data from ESP32
 try:
     while True:
-        data, addr = sock_receive.recvfrom(1024)
-        process_packet(data.decode())
+        try:
+            data, addr = sock_receive.recvfrom(1024)
+            process_packet(data.decode())
+        except Exception as e:
+            print(f"[ERROR] Invalid Packet: {e}")
 
 except KeyboardInterrupt:
     print("Exiting...")
