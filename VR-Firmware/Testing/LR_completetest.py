@@ -22,6 +22,16 @@ sock_send.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
 # Queue to process controller states
 state_queue = queue.Queue()
 
+# Function to send initialization/shutdown messages
+def send_startup_shutdown_signal(signal):
+    for _ in range(3):
+        try:
+            sock_send.sendto(signal.encode(), (broadcast_ip, pc_to_esp_port))
+            print(f"[INIT] Sent: {signal}")
+            time.sleep(0.5)
+        except Exception as e:
+            print(f"[ERROR] Failed to send {signal}: {e}")
+
 # Packet processing function
 def process_packet(packet):
     try:
@@ -117,6 +127,9 @@ def start_websocket():
     ws = websocket.WebSocketApp("ws://localhost:8082/api/events", on_message=on_message)
     ws.run_forever()
 
+# Send "START" message at the beginning
+send_startup_shutdown_signal("START")
+
 # Start ALVR sender thread
 alvr_thread = threading.Thread(target=send_to_alvr, daemon=True)
 alvr_thread.start()
@@ -136,6 +149,7 @@ try:
 
 except KeyboardInterrupt:
     print("Exiting...")
+    send_startup_shutdown_signal("STOP")  # Send "STOP" on exit
 finally:
     sock_receive.close()
     sock_send.close()
