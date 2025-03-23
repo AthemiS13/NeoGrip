@@ -19,11 +19,11 @@ char incomingPacket[255];  // Buffer to store incoming packets
 const char *controllerType = "R";  // 'L' for left controller, 'R' for right controller
 
 // GPIO Pins for buttons RIGHT
-const int buttonA = 13;
-const int buttonB = 12;
+const int buttonA = 21;
+const int buttonB = 18;
 const int buttonSYS = 4;  // Also used as wakeup button
 const int buttonJOYCLK = 14;
-const int buttonTRIG = 18;
+const int buttonTRIG = 19;
 const int buttonSQZ = 27;
 const int joyXPin = 34;
 const int joyYPin = 35;
@@ -55,7 +55,7 @@ void waitForStart() {
     Serial.println("[WAIT] Waiting for START signal...");
 
     unsigned long startTime = millis();  // Record wake-up time
-    const unsigned long timeout = 30000; // 30 seconds timeout
+    const unsigned long timeout = 60000; // 60 seconds timeout
 
     while (!receivedStart) {
         int packetSize = udp.parsePacket();
@@ -84,13 +84,20 @@ void waitForStart() {
 }
 
 void setup() {
-    Serial.begin(115200);
+    Serial.begin(115200); 
 
     // Connect to WiFi
     WiFi.begin(ssid, password);
+    unsigned long startAttemptTime = millis();
     while (WiFi.status() != WL_CONNECTED) {
         Serial.print(".");
         delay(500);
+
+                // Restart ESP if it fails to connect within 10 seconds
+        if (millis() - startAttemptTime >= 10000) {
+            Serial.println("\n[ERROR] Failed to connect to WiFi! Restarting ESP...");
+            ESP.restart();
+        }
     }
     Serial.println("\n[SYSTEM] Connected to WiFi!");
     Serial.print("IP Address: ");

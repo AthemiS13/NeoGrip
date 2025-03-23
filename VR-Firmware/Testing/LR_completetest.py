@@ -49,8 +49,8 @@ def process_packet(packet):
         button_SQZ = int(packet[5])
         
         # Properly parse joystick X and Y values from string
-        joyX = int(packet[6:10])  # Extract substring and convert
-        joyY = int(packet[10:14])
+        joyY = int(packet[6:10])  # Extract substring and convert
+        joyX = int(packet[10:14])
         
         button_JOYCLK = int(packet[14])
 
