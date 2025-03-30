@@ -9,8 +9,9 @@ import time
 # ESP32 to PC communication
 esp_to_pc_port = 9999  # Port where ESP32 sends packets
 pc_to_esp_port = 8888  # Port to send haptic feedback to ESP32
-alvr_url = "http://192.168.0.29:8082/api/set-buttons"
-broadcast_ip = '255.255.255.255'
+alvr_url = "http://127.0.0.1:8082/api/set-buttons"
+broadcast_ip = "255.255.255.255"  # Broadcast IP address for local network
+#target_ip = '192.168.0.25'
 
 # Create UDP sockets
 sock_receive = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
