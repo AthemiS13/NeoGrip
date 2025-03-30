@@ -46,9 +46,11 @@ void goToDeepSleep() {
 
     // Configure wake-up source (GPIO 4 - buttonSYS)
     esp_sleep_enable_ext0_wakeup((gpio_num_t)buttonSYS, LOW);
+    hapticSignal();
 
     // Enter deep sleep
     esp_deep_sleep_start();
+
 }
 
 void waitForStart() {
@@ -69,6 +71,7 @@ void waitForStart() {
             if (strcmp(incomingPacket, "START") == 0) {
                 receivedStart = true;
                 Serial.println("[SYSTEM] START received! Proceeding...");
+                hapticSignal();
                 return;  // Exit function and continue normal operation
             }
         }
@@ -102,7 +105,6 @@ void setup() {
     Serial.println("\n[SYSTEM] Connected to WiFi!");
     Serial.print("IP Address: ");
     Serial.println(WiFi.localIP());
-
     // Start UDP listening
     udp.begin(localPort);
     udp.begin(hapticPort);  // Listen for haptic data
@@ -118,16 +120,21 @@ void setup() {
     pinMode(joyXPin, INPUT);
     pinMode(joyYPin, INPUT);
 
+
+    
     // Configure PWM for motor
     ledcAttach(motorPin, fixedFrequency, pwmResolution);
+    hapticSignal();
     ledcWrite(motorPin, maxDuty);  // Ensure motor is off initially
 
+    
     // Wait for START before proceeding
-    waitForStart();
+   waitForStart();
 }
 
 void loop() {
     unsigned long currentMillis = millis();
+
 
     // Handle keystrokes
     if (currentMillis - previousMillis >= sendInterval) {
@@ -161,6 +168,7 @@ void sendKeystrokes() {
                     String(joyYFormatted) + String(buttonJOYCLKState);
     
     udp.beginPacket("255.255.255.255", localPort);  // Broadcast to all devices
+    //udp.beginPacket("224.0.0.1", localPort);  // Use multicast address
     udp.print(packet);
     udp.endPacket();
     Serial.println("Sent: " + packet);
@@ -200,4 +208,15 @@ void receiveHaptics(unsigned long currentMillis) {
         delay(20);
         ledcWrite(motorPin, maxDuty);  // Turn off motor after duration ends
     }
+}
+void hapticSignal() {
+    // Turn motor on
+    ledcWrite(motorPin,240);  
+
+
+    delay(100);
+
+    // Turn motor off
+    ledcWrite(motorPin, 255);
+    delay(100);
 }
