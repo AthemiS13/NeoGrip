@@ -82,8 +82,8 @@ def process_packet(packet):
             {"path": f"{hand_path}/input/{btn1_name}/click", "value": {"Binary": button_1 == 1}},
             {"path": f"{hand_path}/input/{btn2_name}/click", "value": {"Binary": button_2 == 1}},
             {"path": f"{hand_path}/input/system/click", "value": {"Binary": button_SYS == 1}},
-            {"path": f"{hand_path}/input/thumbstick/x", "value": {"Scalar": (joyX - 2047) / 2047.0}},
-            {"path": f"{hand_path}/input/thumbstick/y", "value": {"Scalar": (joyY - 2047) / 2047.0}},
+            {"path": f"{hand_path}/input/thumbstick/x", "value": {"Scalar": (joyY - 2047) / 2047.0 if controller_id == 'L' else (joyX - 2047) / 2047.0}},
+            {"path": f"{hand_path}/input/thumbstick/y", "value": {"Scalar": (joyX - 2047) / 2047.0 if controller_id == 'L' else (joyY - 2047) / 2047.0}},
             {"path": f"{hand_path}/input/thumbstick/click", "value": {"Binary": button_JOYCLK == 1}},
         ]
 
