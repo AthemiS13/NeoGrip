@@ -1,47 +1,53 @@
 # NeoGrip
-Affordable custom controllers for Quest 2 and other VR headsets **purchased without original controllers**, or for those looking for open-source VR controllers. Designed using **ESP32** and [LucidVR Driver](https://github.com/LucidVR/opengloves-driver "LucidVR Driver") to emulate Valve Index controllers in **SteamVR**, this project makes headsets without controllers usable and accessible for VR enthusiasts on a budget.
+Affordable custom controllers for Quest 2 and other VR headsets **purchased without original controllers**, or for those looking for open-source VR controllers. Designed using **ESP32** and [ALVR's API](https://github.com/alvr-org/ALVR "ALVR API") to emulate Quest controllers in **SteamVR**, this project makes headsets without controllers usable and accessible for VR enthusiasts on a budget.
 
-[![NeoGrip animation](https://github.com/AthemiS13/NeoGrip/blob/main/Assets/animation.gif "NeoGrip animation")](https://github.com/AthemiS13/NeoGrip/blob/main/Assets/animation.gif "NeoGrip animation")
-
-## Update!!
 [![NeoGrip animation](https://github.com/AthemiS13/NeoGrip/blob/main/Assets/neogripv2.gif "NeoGrip animation")](https://github.com/AthemiS13/NeoGrip/blob/main/Assets/neogripv2.gif "NeoGrip animation")
 
-- **Major design update:** V1 was almost impossible to use comfortably because of its size and non-ergonomic design. V2 brings a completely new design that has already been 3D printed and tested and works flawlessly.
-- **Software update:** NeoGrip is slowly getting rid of [LucidVR Driver](https://github.com/LucidVR/opengloves-driver "LucidVR Driver") because more flexible, lightweight and simple solution is needed. I am currently collaborating with [ALVR's](https://github.com/alvr-org/ALVR "ALVR") Developers to build NeoGrip's firmware based on ALVR's API.
-- **This will bring:** Wireless Wi-Fi-based communication, Haptic feedback, and possibly Hall effect sensors (currently using binary state of presses)12
-- 5.12. 2025: NeoGrip no longer uses LucidVR Driver. I worked hard with ALVR devs and finally brought NeoGrip to life as I wanted. It uses a proxy written in python to handle ESP to PC communication. I will add more info once it is completely done.
+
   
 ## Features
-- **Custom Controller Design:** Includes joystick, trigger, grab button, and three additional buttons. You can customize everything.
-- **Affordable Solution:** Ideal for users who bought Quest 2 headsets without controllers for cost savings.
-- **Connectivity:** USB-C communication (Bluetooth support planned).
-- **Driver:** Uses the [LucidVR Driver](https://github.com/LucidVR/opengloves-driver "LucidVR Driver") for Valve Index emulation.
-- **Hardware:** Built with ESP32 microcontroller and designed for DIY assembly.
+- **Design:** NeoGrip was designed based on Quest 3's controllers and shares all the controls
+- **Controls:** Trigger, Grab, A, B, System, JoyStick Click, JoyStick X and Y analog axis
+- **Connectivity:** Wi-Fi via UDP
+- **Core:** ESP32 Dev Module
+ - **Power:** 500mAh Li-Po battery, TP4056 for charging and protection (Available both with USB-C or Micro), Deep Sleep mode if not in use and can be woken up by system button any time, Up to 6 hours of playtime
 
 ## Motivation
 Quest 2 headsets without controllers are often significantly **cheaper** but practically unusable due to setup barriers and lack of interaction devices. This project provides an affordable, open-source solution for people in this situation, turning these **undervalued** headsets into functional VR systems.
+
+# !!THIS REPO IS STILL UNDER CONSTRUCTION!!
+It still contains old files and outdated informations. If you have any questions, feel free to contact me personally. Hopefully I will fully finish this repo till the end of March. I also want to make some YouTube videos showcasing the functionality and maybe even the assembly process.
 
 ## How does it work?
 NeoGrip communicates with PC via ESP32 using the [LucidVR Driver](https://github.com/LucidVR/opengloves-driver "LucidVR"). While LucidVR is meant for creating your own [Cheap haptic gloves](https://github.com/LucidVR/lucidgloves "Cheap haptic gloves"), NeoGrip takes advantage of the driver's Valve Index controller emulation to send keystrokes to your PC. But here comes a problem. LucidVR driver needs some kind of tracker to determine the position of your hands in 3D space (usually using headsets' original controllers or VIVE trackers). But you probably own none of those since you read this. That is when [ALVR](https://github.com/alvr-org/ALVR "ALVR") comes in clutch. It allows you to emulate VR controllers such as Quest 2 or similar using hand tracking. So basically ALVR tracks your hands instead of a controller or tracker and Steam VR sees it as the controllers you set ALVR to emulate.  SoLucidVR takes care of Buttons and Joysticks and ALVR takes care of tracking.
 
 ## Hardware Requirements
-- **ESP32** microcontroller
-- **USB-C** cable
-- **Joystick** module
-- 3 **buttons** (A, B, X, Y, Menu, Oculus)
-- **End switches** (for grab button functionality)
-- 3D-printed controller **shell** (design files available [here](https://github.com/AthemiS13/NeoGrip/tree/main/3D-Files "here"))
+- **ESP32** Dev Module [Link](https://www.aliexpress.com/item/1005004879572949.html "Link")
+- **TP4056** Charging Module [Link](https://www.aliexpress.com/item/1005007010409267.html "Link")
+- **Joystick** KY-023 module [Link](https://www.aliexpress.com/item/1005006966359366.html "Link")
+- **Buttons** (A, B, X, Y, Menu, Oculus) [Link](https://www.aliexpress.com/item/1005004254514071.html "Link")
+- **End switches** Grab and Trigger (KW11-3Z-4-N) [Link](https://www.aliexpress.com/item/1005006260069918.html "Link")
+- 3D-printed controller **parts** (STEP files available [here](https://github.com/AthemiS13/NeoGrip/tree/main/STEP-Files "here"))
+ - **Regulator** Ultra Low Dropout voltage, 3.3V (RT9183-33GGF)
+ - **Battery** 3.7V, 500mAh, Li-Po (You might be able to fit a bigger one) [Link](https://www.aliexpress.com/item/1005003156469047.html "Link")
+  - **Transistor** Generic PNP or NPN transistor for haptic motor control.
+  - **Haptic** Motor, 3.3V [Link](https://www.aliexpress.com/item/1005007550657082.html "Link")
+  - **Screws, Springs, 2mm Shaft, Wires** 
+ 
+ 
 
-[![Side](https://github.com/AthemiS13/NeoGrip/blob/main/Assets/side.png "Side")](https://github.com/AthemiS13/NeoGrip/blob/main/Assets/side.png "Side")
+[![Side](https://github.com/AthemiS13/NeoGrip/blob/main/Assets/v2side.png "Side")](https://github.com/AthemiS13/NeoGrip/blob/main/Assets/side.png "Side")
 
 ## Software Requirements
-- [LucidVR Driver](https://github.com/LucidVR/opengloves-driver "LucidVR Driver")
+- [NeoGrip Proxy](https://github.com/AthemiS13/NeoGrip/tree/main/VR-Firmware/NeoGrip-Proxy "NeoGrip Proxy")
 - [ALVR](https://github.com/alvr-org/ALVR "ALVR")
 - [Arduino IDE](https://www.arduino.cc/en/software "Arduino IDE") or compatible ESP32 programming environment
 - SteamVR
+- Visual Studio Code or other enviroment to run NeoGrip Proxy
+- [Python](https://www.python.org/ "Python")
 
 ## Assembly
-1. 3D Print the Shell: Download the [3D Files](https://github.com/AthemiS13/NeoGrip/tree/main/3D-Files "here") and print them using your preferred 3D printer.
+1. 3D Print the Shell: Download the [3D Files](https://github.com/AthemiS13/NeoGrip/tree/main/STEP-Files "3D files") and print them using your preferred 3D printer.
 2. Wire Components: (Connect components to ESP32 According to **NeoGrip** firmware setup)
 3. Download [Firmware](https://github.com/AthemiS13/NeoGrip/tree/main/VR-Firmware "Firmware") and open lucidgloves_firmware-left/right **.INO** file in **Arduino IDE**
 4. Program the **ESP32** using Arduino IDE.
