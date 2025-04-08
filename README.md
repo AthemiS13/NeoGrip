@@ -19,7 +19,7 @@ Quest 2 headsets without controllers are often significantly **cheaper** but pra
 It still contains old files and outdated informations. If you have any questions, feel free to contact me personally. Hopefully I will fully finish this repo till the end of March. I also want to make some YouTube videos showcasing the functionality and maybe even the assembly process.
 
 
-## How does it work?
+# How does it work?
 
 **NeoGrip** is a custom 3D-printed VR controller powered by an ESP32. It connects to your local Wi-Fi network and streams real-time input data to a PC at a consistent 40ms interval. Here’s a breakdown of its functionality:
 
