@@ -18,9 +18,70 @@ Quest 2 headsets without controllers are often significantly **cheaper** but pra
 # !!THIS REPO IS STILL UNDER CONSTRUCTION!!
 It still contains old files and outdated informations. If you have any questions, feel free to contact me personally. Hopefully I will fully finish this repo till the end of March. I also want to make some YouTube videos showcasing the functionality and maybe even the assembly process.
 
-## How does it work?
-NeoGrip communicates with PC via ESP32 using the [LucidVR Driver](https://github.com/LucidVR/opengloves-driver "LucidVR"). While LucidVR is meant for creating your own [Cheap haptic gloves](https://github.com/LucidVR/lucidgloves "Cheap haptic gloves"), NeoGrip takes advantage of the driver's Valve Index controller emulation to send keystrokes to your PC. But here comes a problem. LucidVR driver needs some kind of tracker to determine the position of your hands in 3D space (usually using headsets' original controllers or VIVE trackers). But you probably own none of those since you read this. That is when [ALVR](https://github.com/alvr-org/ALVR "ALVR") comes in clutch. It allows you to emulate VR controllers such as Quest 2 or similar using hand tracking. So basically ALVR tracks your hands instead of a controller or tracker and Steam VR sees it as the controllers you set ALVR to emulate.  SoLucidVR takes care of Buttons and Joysticks and ALVR takes care of tracking.
 
+## How does it work?
+
+**NeoGrip** is a custom 3D-printed VR controller powered by an ESP32. It connects to your local Wi-Fi network and streams real-time input data to a PC at a consistent 40ms interval. Here’s a breakdown of its functionality:
+
+### Controller Input
+
+Every 40ms, the controller sends a **15-character string** via UDP to the NeoGrip Python proxy running on the PC:
+
+-   **1st character**: Controller side — `L` (Left) or `R` (Right).
+    
+-   **Next 5 characters**: Button states:
+    
+    -   A/X, B/Y
+        
+    -   System button
+        
+    -   Trigger
+        
+    -   Grab/squeeze button  
+        _(Each represented as `0` or `1`)_
+        
+-   **Next 8 characters**: Joystick analog values:
+    
+    -   4 digits for **X-axis** (0000–4095)
+        
+    -   4 digits for **Y-axis** (0000–4095)
+        
+-   **Last character**: Joystick click state (`0` or `1`)
+    
+
+This data is broadcast to port **9999** and received by the Python proxy.
+
+### Python Proxy
+
+The Python proxy listens for these packets, parses them, and translates them into **ALVR API-compatible keystrokes** for VR interaction. Each input is converted into ALVR’s controller paths for actions like `trigger`, `squeeze`, `thumbstick`, and button clicks.
+
+### Haptic Feedback
+
+Haptic feedback is handled by the Python proxy and sent back to the ESP32 via UDP on **port 8888**. When a haptic event is triggered (e.g., through ALVR’s WebSocket event stream), the proxy sends a **7-character message** to the appropriate controller:
+
+-   **1st character**: Controller side (`L` or `R`)
+    
+-   **Next 3 digits**: Duty cycle for motor speed (0–255)
+    
+-   **Next 3 digits**: Duration in milliseconds (max 999ms)
+    
+
+Example: `R200150` means "Right controller, 200 PWM, for 150ms".
+
+On the ESP32 side, the motor is controlled via PWM, and the haptic vibration ends automatically after the specified duration.
+
+### Power Management
+
+NeoGrip uses **deep sleep mode** to save power when inactive:
+
+-   When first powered on, the controller waits for a `"START"` signal from the PC. If not received within 60 seconds, it enters deep sleep.
+    
+-   While sleeping, the controller can be woken up by pressing the **System** button (configured as a hardware wake-up source).
+    
+-   Upon shutdown (e.g., PC disconnects or ALVR is closed), a `"STOP"` signal is sent to the controller, which also triggers deep sleep mode.
+    
+
+This system ensures the controller remains efficient and only stays active during sessions.
 ## Hardware Requirements
 - **ESP32** Dev Module [Link](https://www.aliexpress.com/item/1005004879572949.html "Link")
 - **TP4056** Charging Module [Link](https://www.aliexpress.com/item/1005007010409267.html "Link")
@@ -59,21 +120,17 @@ NeoGrip communicates with PC via ESP32 using the [LucidVR Driver](https://github
 
 ### Notes on Quest 2 Setup:
 If you have purchased a Quest 2 without controllers that is logged out and factory resetted, bypassing the **initial setup** can be challenging. While this README focuses on the VRController project, instructions for bypassing the setup to enable hand tracking and unlock the headset can be provided on request.
-## Software setup
-Can be a bit tricky, depending on your setup and you need to tweak settings a lot. Here is what works for me:
 
-### LucidVR setup:
-Finish setup according to [their repository](https://github.com/LucidVR/lucidgloves "their repository"). Make sure you close Arduino ide after programming, since it makes the COM port busy and not usable for the driver. Copy [my settings](https://github.com/AthemiS13/NeoGrip/tree/main/Config/LucidVR-Driver "my settings") just change the COM ports of your controllers according to ArduinoIDE.
+## Software setup
+### NeoGrip Proxy setup:
+1. Install leatest [Python](https://www.python.org/downloads/) version
+2. Download [NeoGrip Proxy](https://github.com/AthemiS13/NeoGrip/tree/main/VR-Firmware/NeoGrip-Proxy)
+3. Open Python file in Visual Studio Code or simmilar editor
+
 
 ### ALVR setup:
-[Install ALVR](https://github.com/alvr-org/ALVR/wiki/Installation-guide) and then tweak the settings according to [mine](https://github.com/AthemiS13/NeoGrip/tree/main/Config/ALVR "mine"). Make sure ALVR [registered](https://github.com/AthemiS13/NeoGrip/blob/main/Config/ALVR/ALVRSETUP5.png "registered") LucidVR driver. If it is not registered, you will not be able to connect NeoGrip controllers to Steam VR.
+[Install ALVR](https://github.com/alvr-org/ALVR/wiki/Installation-guide) and then tweak the settings according to [mine](https://github.com/AthemiS13/NeoGrip/tree/main/Config/ALVR "mine"). 
 
-### Steam VR setup:
-Make sure you have the Lucid VR driver enabled in Steam VR advanced settings. Then adjust button bindings, since the default ones for Valve index controllers do not work properly. When binding in the Steam VR environment, select options above the line. For example, if you want to bind the trigger, you click the plus icon next to the trigger and then select the trigger option above the line.
-
-## Future Plans
-- Add Bluetooth communication for wireless functionality.
-- Explore additional gesture support and feedback mechanisms.
 
 [![basic](https://github.com/AthemiS13/NeoGrip/blob/main/Assets/basic.png "basic")](https://github.com/AthemiS13/NeoGrip/blob/main/Assets/basic.png "basic")
 
