@@ -11,7 +11,13 @@ esp_to_pc_port = 9999  # Port where ESP32 sends packets
 pc_to_esp_port = 8888  # Port to send haptic feedback to ESP32
 alvr_url = "http://127.0.0.1:8082/api/set-buttons"
 broadcast_ip = "255.255.255.255"  # Broadcast IP address for local network
-#target_ip = '192.168.0.25'
+# Headers for ALVR requests because of recent changes in ALVR API
+headers = {
+    "X-ALVR": "true",
+    "Content-Type": "application/json"
+    }
+
+
 
 # Create UDP sockets
 sock_receive = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -96,7 +102,7 @@ def send_to_alvr():
     while True:
         try:
             data = state_queue.get()
-            response = requests.post(alvr_url, json=data)
+            response = requests.post(alvr_url, headers=headers, json=data)
         except Exception as e:
             print(f"[ERROR] ALVR request failed: {e}")
 
