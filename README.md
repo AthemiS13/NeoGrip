@@ -135,4 +135,5 @@ If you have purchased a Quest 2 without controllers that is logged out and facto
 [![basic](https://github.com/AthemiS13/NeoGrip/blob/main/Assets/basic.png "basic")](https://github.com/AthemiS13/NeoGrip/blob/main/Assets/basic.png "basic")
 
 ## Demo video
+[**▶ Watch the NeoGrip 2024 Demo on YouTube**](https://youtu.be/AhS3Zu6njnE?si=yEACRPgUvw43rx8U)
 [![Watch the video](https://img.youtube.com/vi/AhS3Zu6njnE/maxresdefault.jpg)](https://youtu.be/AhS3Zu6njnE?si=yEACRPgUvw43rx8U)
