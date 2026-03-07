@@ -29,25 +29,40 @@ sock_send.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
 # Queue to process controller states
 state_queue = queue.Queue()
 
-# Flag to check if controller has responded
-controller_connected = False
+# Set to keep track of connected controllers
+connected_controllers = set()
+controller_ips = set()
+last_connection_time = time.time()
 
 # Function to send initialization/shutdown messages
 def send_startup_signal():
-    print("[INIT] Press system button on controller to connect")
-    global controller_connected
-    while not controller_connected:
+    print("[INIT] Press system button on controller(s) to connect")
+    global connected_controllers, last_connection_time
+    
+    while True:
+        if len(connected_controllers) == 2:
+            print("\n[INIT] Both controllers connected. Stopping START broadcast.")
+            break
+            
+        # If one controller has been connected for more than 15 seconds and the other hasn't, 
+        # assume single controller mode and stop broadcasting.
+        if len(connected_controllers) == 1 and (time.time() - last_connection_time > 15):
+            print("\n[INIT] 15s timeout reached. Continuing with single controller. Stopping START broadcast.")
+            break
+
         try:
             sock_send.sendto(b"START", (broadcast_ip, pc_to_esp_port))
-            print(".", end="", flush=True)   
+            if len(connected_controllers) == 0:
+                print(".", end="", flush=True)
             time.sleep(0.5)
         except Exception as e:
             print(f"[ERROR] Failed to send START: {e}")
+            time.sleep(0.5)
 
 
 # Packet processing function
-def process_packet(packet):
-    global controller_connected
+def process_packet(packet, addr=None):
+    global connected_controllers, last_connection_time, controller_ips
     try:
         print(f"[ESP] Raw data: {packet}")
 
@@ -55,9 +70,16 @@ def process_packet(packet):
             print(f"[ERROR] Invalid packet length: {len(packet)}")
             return
 
-        controller_connected = True  # Mark as connected once we receive data
-
         controller_id = packet[0]  # 'L' or 'R'
+        
+        if controller_id not in connected_controllers:
+            connected_controllers.add(controller_id)
+            if addr:
+                controller_ips.add(addr[0])
+            last_connection_time = time.time()
+            if len(connected_controllers) == 1:
+                print(f"\n[ESP] Controller {controller_id} connected. Waiting for second controller...")
+
         button_1 = int(packet[1])  # A/X
         button_2 = int(packet[2])  # B/Y
         button_SYS = int(packet[3])
@@ -167,16 +189,20 @@ try:
     while True:
         try:
             data, addr = sock_receive.recvfrom(1024)
-            process_packet(data.decode())
+            process_packet(data.decode(), addr)
         except Exception as e:
             print(f"[ERROR] Invalid Packet: {e}")
 except KeyboardInterrupt:
-    print("[EXIT] Putting NeoGrip to sleep...")
-    for i in range(5):
-        sock_send.sendto(b"STOP", (broadcast_ip, pc_to_esp_port))  # Send stop message on exit   
-        print(".", end="", flush=True)  
-        time.sleep(1)
-
+    print("\n[EXIT] Putting NeoGrip to sleep...")
+    try:
+        for i in range(10):
+            sock_send.sendto(b"STOP", (broadcast_ip, pc_to_esp_port))  # Send broadcast stop
+            for ip in controller_ips:
+                sock_send.sendto(b"STOP", (ip, pc_to_esp_port))  # Send unicast stop directly
+            print(".", end="", flush=True)  
+            time.sleep(0.1)
+    except KeyboardInterrupt:
+        pass # Allow user to force exit by pressing Ctrl+C again
 finally:
     sock_receive.close()
     sock_send.close()
