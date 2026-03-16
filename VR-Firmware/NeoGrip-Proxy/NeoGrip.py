@@ -21,6 +21,7 @@ headers = {
 
 # Create UDP sockets
 sock_receive = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+sock_receive.settimeout(1.0)  # Timeout to allow Ctrl+C interruption on Windows
 sock_receive.bind(('', esp_to_pc_port))  # Listen for packets from ESP32
 
 sock_send = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -195,6 +196,8 @@ try:
         try:
             data, addr = sock_receive.recvfrom(1024)
             process_packet(data.decode(), addr)
+        except socket.timeout:
+            pass # Timeout triggered to allow Ctrl+C check
         except Exception as e:
             print(f"[ERROR] Invalid Packet: {e}")
 except KeyboardInterrupt:
