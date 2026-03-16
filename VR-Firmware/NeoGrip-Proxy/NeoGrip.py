@@ -105,7 +105,7 @@ def process_packet(packet, addr=None):
 
         # Convert to ALVR-compatible format
         data = [
-            {"path": f"{hand_path}/input/trigger/value", "value": {"Scalar": 0.8 if button_TRIG else 0.0}},
+            {"path": f"{hand_path}/input/trigger/value", "value": {"Scalar": 1.0 if button_TRIG else 0.0}},
             {"path": f"{hand_path}/input/squeeze/value", "value": {"Scalar": 1.0 if button_SQZ else 0.0}},
             {"path": f"{hand_path}/input/{btn1_name}/click", "value": {"Binary": button_1 == 1}},
             {"path": f"{hand_path}/input/{btn2_name}/click", "value": {"Binary": button_2 == 1}},
