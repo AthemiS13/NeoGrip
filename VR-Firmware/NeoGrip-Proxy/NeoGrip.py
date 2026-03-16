@@ -34,6 +34,7 @@ state_queue = queue.Queue()
 connected_controllers = set()
 controller_ips = set()
 last_connection_time = time.time()
+state_lock = threading.Lock()
 
 # Function to send initialization/shutdown messages
 def send_startup_signal():
@@ -41,19 +42,23 @@ def send_startup_signal():
     global connected_controllers, last_connection_time
     
     while True:
-        if len(connected_controllers) == 2:
+        with state_lock:
+            num_connected = len(connected_controllers)
+            time_since_last = time.time() - last_connection_time
+
+        if num_connected == 2:
             print("\n[INIT] Both controllers connected. Stopping START broadcast.")
             break
             
         # If one controller has been connected for more than 15 seconds and the other hasn't, 
         # assume single controller mode and stop broadcasting.
-        if len(connected_controllers) == 1 and (time.time() - last_connection_time > 15):
+        if num_connected == 1 and time_since_last > 15:
             print("\n[INIT] 15s timeout reached. Continuing with single controller. Stopping START broadcast.")
             break
 
         try:
             sock_send.sendto(b"START", (broadcast_ip, pc_to_esp_port))
-            if len(connected_controllers) == 0:
+            if num_connected == 0:
                 print(".", end="", flush=True)
             time.sleep(0.5)
         except Exception as e:
@@ -73,13 +78,14 @@ def process_packet(packet, addr=None):
 
         controller_id = packet[0]  # 'L' or 'R'
         
-        if controller_id not in connected_controllers:
-            connected_controllers.add(controller_id)
-            if addr:
-                controller_ips.add(addr[0])
-            last_connection_time = time.time()
-            if len(connected_controllers) == 1:
-                print(f"\n[ESP] Controller {controller_id} connected. Waiting for second controller...")
+        with state_lock:
+            if controller_id not in connected_controllers:
+                connected_controllers.add(controller_id)
+                if addr:
+                    controller_ips.add(addr[0])
+                last_connection_time = time.time()
+                if len(connected_controllers) == 1:
+                    print(f"\n[ESP] Controller {controller_id} connected. Waiting for second controller...")
 
         button_1 = int(packet[1])  # A/X
         button_2 = int(packet[2])  # B/Y
@@ -202,10 +208,12 @@ try:
             print(f"[ERROR] Invalid Packet: {e}")
 except KeyboardInterrupt:
     print("\n[EXIT] Putting NeoGrip to sleep...")
+    with state_lock:
+        ips_to_notify = list(controller_ips)
     try:
         for i in range(10):
             sock_send.sendto(b"STOP", (broadcast_ip, pc_to_esp_port))  # Send broadcast stop
-            for ip in controller_ips:
+            for ip in ips_to_notify:
                 sock_send.sendto(b"STOP", (ip, pc_to_esp_port))  # Send unicast stop directly
             print(".", end="", flush=True)  
             time.sleep(0.1)
