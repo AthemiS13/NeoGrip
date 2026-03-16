@@ -107,17 +107,6 @@ This system ensures the controller remains efficient and only stays active durin
 - Visual Studio Code or other enviroment to run NeoGrip Proxy
 - [Python](https://www.python.org/ "Python")
 
-## Assembly
-1. 3D Print the Shell: Download the [3D Files](https://github.com/AthemiS13/NeoGrip/tree/main/STEP-Files "3D files") and print them using your preferred 3D printer.
-2. Wire Components: (Connect components to ESP32 According to **NeoGrip** firmware setup)
-3. Download [Firmware](https://github.com/AthemiS13/NeoGrip/tree/main/VR-Firmware "Firmware") and open lucidgloves_firmware-left/right **.INO** file in **Arduino IDE**
-4. Program the **ESP32** using Arduino IDE.
-5. Set up the [LucidVR](https://github.com/LucidVR/opengloves-driver "LucidVR") SteamVR driver. If you have issues refer to their **Discord**.
-6. Connect the controller via **USB-C** to ensure proper communication with SteamVR.
-7. Setup **button bindings** in Steam VR (Default bindings do not work)
-
-[![Assembly](https://github.com/AthemiS13/NeoGrip/blob/main/Assets/electro.png "Assembly")](https://github.com/AthemiS13/NeoGrip/blob/main/Assets/electro.png "Assembly")
-
 ### Notes on Quest 2 Setup:
 If you have purchased a Quest 2 without controllers that is logged out and factory resetted, bypassing the **initial setup** can be challenging. While this README focuses on the VRController project, instructions for bypassing the setup to enable hand tracking and unlock the headset can be provided on request.
 
