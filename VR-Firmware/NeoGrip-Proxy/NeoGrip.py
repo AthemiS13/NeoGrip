@@ -124,7 +124,7 @@ def send_to_alvr():
     while True:
         try:
             data = state_queue.get()
-            response = requests.post(alvr_url, headers=headers, json=data)
+            response = requests.post(alvr_url, headers=headers, json=data, timeout=0.1)
         except Exception as e:
             print(f"[ERROR] ALVR request failed: {e}")
 
@@ -169,8 +169,13 @@ def on_message(ws, message):
         print(f"[ERROR] Processing WebSocket message: {e}")
 
 def start_websocket():
-    ws = websocket.WebSocketApp("ws://localhost:8082/api/events", on_message=on_message)
-    ws.run_forever()
+    while True:
+        try:
+            ws = websocket.WebSocketApp("ws://localhost:8082/api/events", on_message=on_message)
+            ws.run_forever()
+        except Exception as e:
+            print(f"[WS ERROR] Connection failed: {e}")
+        time.sleep(2)
 
 # Start ALVR sender thread
 alvr_thread = threading.Thread(target=send_to_alvr, daemon=True)

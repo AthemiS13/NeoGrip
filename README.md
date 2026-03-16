@@ -125,7 +125,12 @@ If you have purchased a Quest 2 without controllers that is logged out and facto
 ### NeoGrip Proxy setup:
 1. Install leatest [Python](https://www.python.org/downloads/) version
 2. Download [NeoGrip Proxy](https://github.com/AthemiS13/NeoGrip/tree/main/VR-Firmware/NeoGrip-Proxy)
-3. Open Python file in Visual Studio Code or simmilar editor
+3. Open Python file in Visual Studio Code or similar editor
+4. Install required dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
+
 
 
 ### ALVR setup:
