@@ -1,88 +1,14 @@
 # NeoGrip
 Affordable custom controllers for Quest 2 and other VR headsets **purchased without original controllers**, or for those looking for open-source VR controllers. Designed using **ESP32** and [ALVR's API](https://github.com/alvr-org/ALVR "ALVR API") to emulate Quest controllers in **SteamVR**, this project makes headsets without controllers usable and accessible for VR enthusiasts on a budget.
 
+> **Note:** The full, comprehensive documentation for this project is located in [Assets/dokumentace.pdf](Assets/dokumentace.pdf). Unfortunately, it is currently only available in the Czech language.
+
 [![NeoGrip animation](https://github.com/AthemiS13/NeoGrip/blob/main/Assets/neogripv2.gif "NeoGrip animation")](https://github.com/AthemiS13/NeoGrip/blob/main/Assets/neogripv2.gif "NeoGrip animation")
 
+## Motivation & Goals
+The VR equipment market has a paradox: second-hand headsets like Meta Quest are very affordable, but they are often sold without original controllers, which are either unavailable or excessively expensive. NeoGrip was created to break this barrier, utilizing the hidden potential of incomplete VR setups. The goal is to provide a fully functional, open-source hardware and software solution that bridges the physical environment with SteamVR through affordable components.
 
-  
-## Features
-- **Design:** NeoGrip was designed based on Quest 3's controllers and shares all the controls
-- **Controls:** Trigger, Grab, A, B, System, JoyStick Click, JoyStick X and Y analog axis
-- **Connectivity:** Wi-Fi via UDP
-- **Core:** ESP32 Dev Module
- - **Power:** 500mAh Li-Po battery, TP4056 for charging and protection (Available both with USB-C or Micro), Deep Sleep mode if not in use and can be woken up by system button any time, Up to 6 hours of playtime
-
-## Motivation
-Quest 2 headsets without controllers are often significantly **cheaper** but practically unusable due to setup barriers and lack of interaction devices. This project provides an affordable, open-source solution for people in this situation, turning these **undervalued** headsets into functional VR systems.
-
-# !!THIS REPO IS STILL UNDER CONSTRUCTION!!
-It still contains old files and outdated informations. If you have any questions, feel free to contact me personally. Hopefully I will fully finish this repo till the end of March. I also want to make some YouTube videos showcasing the functionality and maybe even the assembly process.
-
-
-# How does it work?
-
-**NeoGrip** is a custom 3D-printed VR controller powered by an ESP32. It connects to your local Wi-Fi network and streams real-time input data to a PC at a consistent 40ms interval. Here’s a breakdown of its functionality:
-
-### Controller Input
-
-Every 40ms, the controller sends a **15-character string** via UDP to the NeoGrip Python proxy running on the PC:
-
--   **1st character**: Controller side — `L` (Left) or `R` (Right).
-    
--   **Next 5 characters**: Button states:
-    
-    -   A/X, B/Y
-        
-    -   System button
-        
-    -   Trigger
-        
-    -   Grab/squeeze button  
-        _(Each represented as `0` or `1`)_
-        
--   **Next 8 characters**: Joystick analog values:
-    
-    -   4 digits for **X-axis** (0000–4095)
-        
-    -   4 digits for **Y-axis** (0000–4095)
-        
--   **Last character**: Joystick click state (`0` or `1`)
-    
-
-This data is broadcast to port **9999** and received by the Python proxy.
-
-### Python Proxy
-
-The Python proxy listens for these packets, parses them, and translates them into **ALVR API-compatible keystrokes** for VR interaction. Each input is converted into ALVR’s controller paths for actions like `trigger`, `squeeze`, `thumbstick`, and button clicks.
-
-### Haptic Feedback
-
-Haptic feedback is handled by the Python proxy and sent back to the ESP32 via UDP on **port 8888**. When a haptic event is triggered (e.g., through ALVR’s WebSocket event stream), the proxy sends a **7-character message** to the appropriate controller:
-
--   **1st character**: Controller side (`L` or `R`)
-    
--   **Next 3 digits**: Duty cycle for motor speed (0–255)
-    
--   **Next 3 digits**: Duration in milliseconds (max 999ms)
-    
-
-Example: `R200150` means "Right controller, 200 PWM, for 150ms".
-
-On the ESP32 side, the motor is controlled via PWM, and the haptic vibration ends automatically after the specified duration.
-
-### Power Management
-
-NeoGrip uses **deep sleep mode** to save power when inactive:
-
--   When first powered on, the controller waits for a `"START"` signal from the PC. If not received within 60 seconds, it enters deep sleep.
-    
--   While sleeping, the controller can be woken up by pressing the **System** button (configured as a hardware wake-up source).
-    
--   Upon shutdown (e.g., PC disconnects or ALVR is closed), a `"STOP"` signal is sent to the controller, which also triggers deep sleep mode.
-    
-
-This system ensures the controller remains efficient and only stays active during sessions.
-## Hardware Requirements
+## Hardware Requirements (Bill of Materials)
 - **ESP32** Dev Module [Link](https://www.aliexpress.com/item/1005004879572949.html "Link")
 - **TP4056** Charging Module [Link](https://www.aliexpress.com/item/1005007010409267.html "Link")
 - **Joystick** KY-023 module [Link](https://www.aliexpress.com/item/1005006966359366.html "Link")
@@ -94,40 +20,106 @@ This system ensures the controller remains efficient and only stays active durin
   - **Transistor** Generic PNP or NPN transistor for haptic motor control.
   - **Haptic** Motor, 3.3V [Link](https://www.aliexpress.com/item/1005007550657082.html "Link")
   - **Screws, Springs, 2mm Shaft, Wires** 
- 
- 
 
-[![Side](https://github.com/AthemiS13/NeoGrip/blob/main/Assets/v2side.png "Side")](https://github.com/AthemiS13/NeoGrip/blob/main/Assets/side.png "Side")
+## Hardware Design & Architecture
+NeoGrip is designed with ergonomics and functionality mirroring the Meta Quest 2/3 controllers:
+- **Core Controller:** ESP32 Dev Module (Dual-core Xtensa LX6 240MHz, Wi-Fi 2.4GHz) for minimal latency and high performance.
+- **Controls:** Standard microswitches (A/X, B/Y, System, Joystick Click), highly reliable end switches KW11-3Z for Trigger and Grip (translated to 0.0/1.0 analog values for OpenXR), and KY-023 analog joysticks for X/Y movement.
+- **Haptic Feedback:** Embedded 3.3V vibration motor driven by PWM via a PNP transistor for tactile responses from SteamVR.
+- **Power Management:** Powered by a 3.7V 500mAh Li-Po battery providing ~6 hours of active playtime. Protected and charged via a TP4056 module (USB-C or Micro-USB). Includes an automatic deep sleep mode after 60 seconds of inactivity to save power, easily wakeable via the System button. An LDO RT9183 regulator provides stable 3.3V.
 
-## Software Requirements
-- [NeoGrip Proxy](https://github.com/AthemiS13/NeoGrip/tree/main/VR-Firmware/NeoGrip-Proxy "NeoGrip Proxy")
-- [ALVR](https://github.com/alvr-org/ALVR "ALVR")
-- [Arduino IDE](https://www.arduino.cc/en/software "Arduino IDE") or compatible ESP32 programming environment
-- SteamVR
-- Visual Studio Code or other enviroment to run NeoGrip Proxy
-- [Python](https://www.python.org/ "Python")
+### Pin Mapping (Right Controller Example)
+- `GPIO 4`: System Button / Deep Sleep Wake (RTC GPIO)
+- `GPIO 14`: Joystick Click
+- `GPIO 16`: PWM Motor Output
+- `GPIO 18`: B Button
+- `GPIO 19`: Trigger (KW11-3Z)
+- `GPIO 21`: A Button
+- `GPIO 27`: Squeeze/Grip (KW11-3Z)
+- `GPIO 34`: Joystick X-Axis (ADC 0-4095)
+- `GPIO 35`: Joystick Y-Axis (ADC 0-4095)
 
-### Notes on Quest 2 Setup:
-If you have purchased a Quest 2 without controllers that is logged out and factory resetted, bypassing the **initial setup** can be challenging. While this README focuses on the VRController project, instructions for bypassing the setup to enable hand tracking and unlock the headset can be provided on request.
+### 3D Printed Chassis
+Designed in Autodesk Fusion 360, printable via FDM. Recommended settings:
+- **Material:** PLA (PETG optional for more durable triggers).
+- **Layer Height:** 0.2mm for the main body, 0.15mm for finer button details.
+- **Infill:** 65% Gyroid for high structural integrity and low weight.
+- **Temperature:** 210°C for optimal layer adhesion.
+- **Supports:** Tree-type supports recommended.
 
-## Software setup
-### NeoGrip Proxy setup:
-1. Install leatest [Python](https://www.python.org/downloads/) version
-2. Download [NeoGrip Proxy](https://github.com/AthemiS13/NeoGrip/tree/main/VR-Firmware/NeoGrip-Proxy)
-3. Open Python file in Visual Studio Code or similar editor
-4. Install required dependencies:
+[![Side](https://github.com/AthemiS13/NeoGrip/blob/main/Assets/v2side.png "Side")](https://github.com/AthemiS13/NeoGrip/blob/main/Assets/v2side.png "Side")
+
+## How it Works
+The architecture consists of the ESP32 hardware and a multi-threaded Python-based proxy server on the PC.
+
+### 1. ESP32 Input Processing
+Every 40ms, the ESP32 reads analog and digital inputs and formats them into a lightweight 15-character UDP broadcast packet (e.g., `L00010204720470`):
+- **Char 1:** Side identifier (`L` or `R`).
+- **Chars 2-6:** Button states (`A/X`, `B/Y`, `SYS`, `Trigger`, `Grip`) as `0` or `1`.
+- **Chars 7-10:** Joystick X-axis analog value (`0000`-`4095`).
+- **Chars 11-14:** Joystick Y-axis analog value (`0000`-`4095`).
+- **Char 15:** Joystick Click state (`0` or `1`).
+
+### 2. Python Proxy Server (`NeoGrip.py`)
+To prevent blocking, the proxy server uses multiple threads:
+- **Main Thread:** Receives UDP packets from the ESP32 on port `9999`.
+- **ALVR Thread:** Forwards processed controller data to ALVR's REST API (`POST http://127.0.0.1:8082/api/set-buttons`).
+- **WebSocket Thread:** Listens to `ws://localhost:8082/api/events` for haptic feedback triggers from SteamVR.
+- **Start Signal Thread:** Broadcasts a "START" UDP packet to wake controllers from deep sleep.
+
+### 3. ALVR and SteamVR Integration
+The proxy translates raw values into standardized OpenXR paths (e.g., `/user/hand/left/input/trigger/value`), allowing the controllers to work natively with SteamVR. Instead of built-in positional tracking, the project relies on **Meta Quest Hand Tracking**. SteamVR binds the controller inputs directly onto the tracked hands in VR.
+
+### 4. Haptic Feedback
+The WebSocket thread captures haptic events, parsing the target controller (path), vibration duration, and amplitude. It maps amplitude (0.0-1.0) to PWM duty cycles (0-255) and converts the duration to milliseconds. It then sends a 7-character UDP packet back to the ESP32 on port `8888` (e.g., `R255100` -> Right controller, 255 duty cycle, 100ms duration).
+
+## Installation & Setup
+
+### Requirements
+- **Hardware:** ESP32 flashed with NeoGrip firmware (can be built using PlatformIO).
+- **Software:** 
+  - SteamVR
+  - [ALVR](https://github.com/alvr-org/ALVR) (Recommended version: V20.11.1)
+  - [Python 3.10+](https://www.python.org/)
+  - [NeoGrip Proxy Script](https://github.com/AthemiS13/NeoGrip/tree/main/VR-Firmware/NeoGrip-Proxy)
+
+### Python Proxy Setup
+1. Download the `NeoGrip.py` proxy script.
+2. Install the required Python dependencies:
    ```bash
-   pip install -r requirements.txt
+   pip install requests websocket-client
    ```
 
+### ALVR Configuration
+For ALVR to accept inputs from the proxy server and track the controllers properly via headset cameras, you must adjust the following settings in ALVR:
+1. **Presets tab:** Turn **off** "Hand tracking interaction" (we want to use the controller buttons, not gesture interactions).
+2. **Headset tab:** Ensure the following are **enabled/on**:
+   - `Controllers`
+   - `Tracked`
+   - `Multimodal tracking`
+   - `Haptics`
+3. Ensure that "SteamVR Input 2.0" and "Hand tracking interaction" (under Headset) are disabled.
 
+> **Note:** A detailed visual guide for the ALVR configuration, alongside screenshots, is available in the [documentation PDF](Assets/dokumentace.pdf) as well as in the [Config](Config) directory.
 
-### ALVR setup:
-[Install ALVR](https://github.com/alvr-org/ALVR/wiki/Installation-guide) and then tweak the settings according to [mine](https://github.com/AthemiS13/NeoGrip/tree/main/Config/ALVR "mine"). 
+### Running the System
+1. Start SteamVR and ALVR. Verify configuration.
+2. Run the proxy server via terminal:
+   ```bash
+   python NeoGrip.py
+   ```
+   The terminal will indicate that it's broadcasting the "START" signal.
+3. Press the **System** button on your NeoGrip controllers to wake them up. They will connect to Wi-Fi and vibrate briefly upon a successful connection.
+4. Put on your headset. Your controllers are now ready to use in SteamVR!
+5. To stop, simply press `Ctrl+C` in the terminal. The proxy server will send a "STOP" signal, putting the controllers back to deep sleep.
 
+## Performance & Testing
+- **Latency:** The system provides extremely low latency, averaging under 50ms from physical button press to VR action, which is well within comfortable limits for fast-paced VR games.
+- **Reliability:** The 2.4GHz Wi-Fi UDP connection provides robust data transmission with negligible packet loss (<1%). Missing packets are instantly superseded by the 25Hz refresh rate.
+- **Battery Life:** ~6 hours of continuous playtime. The TP4056 module charges the 500mAh Li-Po battery at a rate of 1A, allowing a full recharge from 0 to 100% in approximately 45 minutes.
 
-[![basic](https://github.com/AthemiS13/NeoGrip/blob/main/Assets/basic.png "basic")](https://github.com/AthemiS13/NeoGrip/blob/main/Assets/basic.png "basic")
+## Demo Video
+> **Note:** The demo video below is older. Both the hardware, firmware, and software layers have improved significantly since it was recorded. An updated video will be made in the future showcasing the current state.
 
-## Demo video
-[**▶ Watch the NeoGrip 2024 Demo on YouTube**](https://youtu.be/AhS3Zu6njnE?si=yEACRPgUvw43rx8U)
+[**▶ Watch the older NeoGrip 2024 Demo on YouTube**](https://youtu.be/AhS3Zu6njnE?si=yEACRPgUvw43rx8U)
 [![Watch the video](https://img.youtube.com/vi/AhS3Zu6njnE/maxresdefault.jpg)](https://youtu.be/AhS3Zu6njnE?si=yEACRPgUvw43rx8U)
