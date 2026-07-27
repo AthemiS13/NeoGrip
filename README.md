@@ -100,27 +100,23 @@ This system ensures the controller remains efficient and only stays active durin
 [![Side](https://github.com/AthemiS13/NeoGrip/blob/main/Assets/v2side.png "Side")](https://github.com/AthemiS13/NeoGrip/blob/main/Assets/side.png "Side")
 
 ## Software Requirements
-- [NeoGrip Proxy](https://github.com/AthemiS13/NeoGrip/tree/main/VR-Firmware/NeoGrip-Proxy "NeoGrip Proxy")
+- [NeoGrip Proxy for Windows](https://github.com/AthemiS13/NeoGrip/releases) (download the latest `NeoGrip-Proxy.exe` release)
 - [ALVR](https://github.com/alvr-org/ALVR "ALVR")
 - [Arduino IDE](https://www.arduino.cc/en/software "Arduino IDE") or compatible ESP32 programming environment
 - SteamVR
-- Visual Studio Code or other enviroment to run NeoGrip Proxy
-- [Python](https://www.python.org/ "Python")
-
 ### Notes on Quest 2 Setup:
 If you have purchased a Quest 2 without controllers that is logged out and factory resetted, bypassing the **initial setup** can be challenging. While this README focuses on the VRController project, instructions for bypassing the setup to enable hand tracking and unlock the headset can be provided on request.
 
 ## Software setup
 ### NeoGrip Proxy setup:
-1. Install leatest [Python](https://www.python.org/downloads/) version
-2. Download [NeoGrip Proxy](https://github.com/AthemiS13/NeoGrip/tree/main/VR-Firmware/NeoGrip-Proxy)
-3. Open Python file in Visual Studio Code or similar editor
-4. Install required dependencies:
-   ```bash
-   pip install -r requirements.txt
-   ```
+1. Go to the [latest NeoGrip release](https://github.com/AthemiS13/NeoGrip/releases) and download `NeoGrip-Proxy.exe`.
+2. Start ALVR on the PC that will run the proxy.
+3. Run `NeoGrip-Proxy.exe` and leave its console window open during your VR session.
+4. Press the **System** button on each NeoGrip controller to connect it.
 
+The proxy receives controller input on UDP port `9999`, sends haptic feedback on UDP port `8888`, and must be on the same local Wi-Fi network as the controllers.
 
+> Windows SmartScreen may show a warning because the executable is not code-signed. If you downloaded it from the official NeoGrip GitHub release, select **More info** and then **Run anyway**.
 
 ### ALVR setup:
 [Install ALVR](https://github.com/alvr-org/ALVR/wiki/Installation-guide) and then tweak the settings according to [mine](https://github.com/AthemiS13/NeoGrip/tree/main/Config/ALVR "mine"). 
@@ -128,6 +124,13 @@ If you have purchased a Quest 2 without controllers that is logged out and facto
 
 [![basic](https://github.com/AthemiS13/NeoGrip/blob/main/Assets/basic.png "basic")](https://github.com/AthemiS13/NeoGrip/blob/main/Assets/basic.png "basic")
 
-## Demo video
-[**▶ Watch the NeoGrip 2024 Demo on YouTube**](https://youtu.be/AhS3Zu6njnE?si=yEACRPgUvw43rx8U)
+## Videos
+
+### Finished Product Showcase
+[**Watch the NeoGrip Finished Product Showcase on YouTube**](https://www.youtube.com/watch?v=nmFFR0dLkeE)
+
+[![Watch the NeoGrip Finished Product Showcase](https://img.youtube.com/vi/nmFFR0dLkeE/maxresdefault.jpg)](https://www.youtube.com/watch?v=nmFFR0dLkeE)
+
+### 2024 Demo
+[**Watch the NeoGrip 2024 Demo on YouTube**](https://youtu.be/AhS3Zu6njnE?si=yEACRPgUvw43rx8U)
 [![Watch the video](https://img.youtube.com/vi/AhS3Zu6njnE/maxresdefault.jpg)](https://youtu.be/AhS3Zu6njnE?si=yEACRPgUvw43rx8U)
